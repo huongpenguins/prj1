@@ -1,0 +1,43 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compile JavaFX",
+            "type": "shell",
+            "command": "javac",
+            "args": [
+                "--module-path",
+                "D:/downloads/download/openjfx-22_windows-x64_bin-sdk/javafx-sdk-22/lib",
+                "--add-modules",
+                "javafx.controls,javafx.fxml",
+                "-d",
+                "target/classes",
+                "src/main/java/com/example/*.java"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+
+        },
+        {
+            "label": "Run JavaFX",
+            "type": "shell",
+            "command": "java",
+            "args": [
+                "--module-path",
+                "D:/downloads/download/openjfx-22_windows-x64_bin-sdk/javafx-sdk-22/lib",
+                "--add-modules",
+                "javafx.controls,javafx.fxml",
+                "-cp",
+                "target/classes",
+                "com.example/com.example.App"
+            ],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        }
+    ]
+}

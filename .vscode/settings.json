@@ -1,0 +1,8 @@
+{
+    "java.project.referencedLibraries": [
+      "D:/Downloads/download/openjfx-22_windows-x64_bin-sdk/javafx-sdk-22/lib/*.jar"
+    ],
+    "javafx.lib.path": "D:/Downloads/download/openjfx-22_windows-x64_bin-sdk/javafx-sdk-22/lib",
+    "javafx.lib.modules": "javafx.controls,javafx.fxml"
+  }
+  

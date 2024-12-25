@@ -1,0 +1,13 @@
+.AnchorPane {
+    -fx-background-color: #000000;
+}
+.TextField{
+    -fx-background-color: transparent;
+}
+.Button{
+    -fx-background-image: url("pictures/home.png");
+    -fx-background-position: center;
+    -fx-background-size: contain;
+    -fx-background-repeat: no-repeat;
+    -fx-background-color: transparent;
+}
