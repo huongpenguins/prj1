@@ -23,6 +23,12 @@ public class Animation extends AnimationTimer{
         this.image = image;
         
     }
+    public boolean isLastFrame(){
+        if(curIndex == (int)image.getWidth()/16-1){
+            return true;
+        }
+        else return false;
+    }
     @Override
     public void start(){
         super.start();
@@ -40,6 +46,7 @@ public class Animation extends AnimationTimer{
         }
 ;
     }
+    
     public void draw(){
         //animation.handle(System.nanoTime());
         //System.out.println(curIndex);

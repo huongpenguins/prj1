@@ -42,7 +42,6 @@ public class SecondaryController {
                 canvas.getScene().setOnKeyPressed(new EventHandler<KeyEvent>() {
                     @Override
                     public void handle(KeyEvent event) {
-                        System.out.println("Key pressed: " + event.getCode());
                         gameLoop.pacman.addKeyListener(event.getCode());
                         canvas.requestFocus();
                     }

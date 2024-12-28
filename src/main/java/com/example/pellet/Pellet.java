@@ -1,5 +1,6 @@
 package com.example.pellet;
 
+import com.example.GameLoop;
 import com.example.character.Pacman;
 
 import javafx.scene.canvas.GraphicsContext;
@@ -13,13 +14,16 @@ abstract public class Pellet {
      int point;
      boolean isEaten;
     public GraphicsContext g;
+    GameLoop gameLoop;
     
-    public Pellet(double x, double y, int point,double width,double height){
+    public Pellet(double x, double y, int point,double width,double height,GameLoop gameLoop){
         this.x = x;
         this.y = y;
         this.point = point;
         this.width = width;
         this.height = height;
+        this.gameLoop = gameLoop;
+        this.g = gameLoop.getG();
         bound = new Rectangle();
         this.isEaten = false;
     }

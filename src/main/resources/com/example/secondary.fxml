@@ -27,17 +27,17 @@
             <Font name="Bodoni MT" size="18.0" />
          </font>
       </Label>
-      <Label fx:id="textLevel" focusTraversable="false" layoutX="793.0" layoutY="75.0" prefHeight="22.0" prefWidth="23.0" textFill="WHITE">
+      <Label fx:id="textLevel" layoutX="793.0" layoutY="75.0" prefHeight="22.0" prefWidth="94.0" textFill="WHITE">
          <font>
             <Font name="Bodoni MT" size="18.0" />
          </font>
       </Label>
-      <Label fx:id="textLive" focusTraversable="false" layoutX="792.0" layoutY="152.0" prefHeight="22.0" prefWidth="18.0" textFill="WHITE">
+      <Label fx:id="textLive" layoutX="792.0" layoutY="152.0" prefHeight="22.0" prefWidth="94.0" textFill="WHITE">
          <font>
             <Font name="Bodoni MT" size="18.0" />
          </font>
       </Label>
-      <Label fx:id="textPoint" focusTraversable="false" layoutX="791.0" layoutY="113.0" prefHeight="22.0" prefWidth="23.0" textFill="WHITE">
+      <Label fx:id="textPoint" layoutX="791.0" layoutY="113.0" prefHeight="22.0" prefWidth="94.0" textFill="WHITE">
          <font>
             <Font name="Bodoni MT" size="18.0" />
          </font>

@@ -1,88 +1,222 @@
 package com.example.character;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.PriorityQueue;
+import java.util.Random;
 
 import com.example.Animation;
 import com.example.GameLoop;
-import com.example.Maze;
 
 import javafx.scene.image.Image;
 
 
-public class Ghost extends Characters {
 
-     
+public abstract class Ghost extends Characters {
 
-    Animation curAnimation;
-    Animation moveUp;
-    Animation moveDown;
-    Animation moveLeft;
-    Animation moveRight;
-    Animation die;
-    Animation eatGhost;
-    Image up = new Image(getClass().getResource("/com/example/pictures/blinky/blinky_up.png").toExternalForm());
-    Image down = new Image(getClass().getResource("/com/example/pictures/blinky/blinky_down.png").toExternalForm());
-    Image left = new Image(getClass().getResource("/com/example/pictures/blinky/blinky_left.png").toExternalForm());
-    Image right = new Image(getClass().getResource("/com/example/pictures/blinky/blinky_right.png").toExternalForm());
+    char[][] mazeInHouse;
     
+    long startEatPacman;
+    long startFighten;
+    long starteaten; 
+    long startChange;
+    public boolean isDeath=false; 
+    public boolean isEye=false;
+
+    Animation die;
+    Animation eatPacman;
+    Animation frighten;
+    Animation eaten;
+    Animation eyeUp;
+    Animation eyeDown;
+    Animation eyeLeft;
+    Animation eyeRight;
+
+    Image frImage = new Image(getClass().getResource("/com/example/pictures/eye/scared_blue.png").toExternalForm());
+    Image white_ghost = new Image(getClass().getResource("/com/example/pictures/eye/scared_white.png").toExternalForm());
+    Image eatImage = new Image(getClass().getResource("/com/example/pictures/pacman/100.png").toExternalForm());
+    Image eyeUpImage = new Image(getClass().getResource("/com/example/pictures/eye/eyes_up.png").toExternalForm());
+    Image eyeDownImage = new Image(getClass().getResource("/com/example/pictures/eye/eyes_down.png").toExternalForm());
+    Image eyeLeftImage = new Image(getClass().getResource("/com/example/pictures/eye/eyes_left.png").toExternalForm());
+    Image eyeRightImage = new Image(getClass().getResource("/com/example/pictures/eye/eyes_right.png").toExternalForm());
+
+    boolean isFighten=false;
+    boolean inHouse=true;
+    long timeInHouse;
 
     int state;
-    final int CHASE=0; // duoi theo pacman
-    final int SCATTER=1; // di ngau nhien
-    final int FRIGHTENED=2; // so hai
-    final int EATEN=3; // bi an
-    final int EATPACMAN=4; // an pacman
+    final int MOVING=0; // di chuyen theo dich
+    final int FRIGHTENED=1; // so hai
+    final int EATEN=2; // bi an
+    final int EATPACMAN=3; // an pacman
 
-    int scatterPoint;
+    int[][] scatterPoints;
+    int [] scatterPoint;
     
-    int nextDirection;
-    public int direction;
-    final int UP = 0;  
-    final int DOWN = 1;
-    final int LEFT = 2;
-    public final int RIGHT = 3;
-   
 
     public Ghost(double x, double y,GameLoop gameLoop) {
-        super(x,y,32,32,3.2,gameLoop);
+        super(x,y,32,32,1.6,gameLoop);
         AllGhost.ghosts.add(this);
-        moveRight = new Animation(up, gameLoop.getG(), this, 1000000000/12);
-        state = SCATTER;
-        curAnimation= moveRight;
-        curAnimation.start();
+        frighten = new Animation(frImage,gameLoop.getG(),this,1000000000/12);
+        eyeRight = new Animation(eyeRightImage, gameLoop.getG(), this, 1000000000/12);
+        eyeLeft = new Animation(eyeLeftImage, gameLoop.getG(), this, 1000000000/12);
+        eyeUp = new Animation(eyeUpImage, gameLoop.getG(), this, 1000000000/12);
+        eyeDown = new Animation(eyeDownImage, gameLoop.getG(), this, 1000000000/12);
+        eaten = new Animation(eatImage, gameLoop.getG(), this, 1000000000/12);
+        mazeInHouse=(gameLoop.getMaze().maze[level]).clone();
+        this.mazeInHouse[12][13]='o';
+        this.mazeInHouse[12][14]='o';
+        isFighten=false;
+        state = MOVING;
+        direction = UP;
+        nextDirection = UP;
+ 
+        
     }
 
-
+    abstract public int[] getDestination(char maze[][]);
+    @Override
     public void update(){
-        int curI= (int)(y+8)/16;
-        int curJ = (int)(x+8)/16;
+        if(gameLoop.state == gameLoop.INGAME||gameLoop.state ==gameLoop.GHOSTDEATH){
 
-        
-        
-        switch (state) {
-            case SCATTER:
-                if(checkCollisionWithPacman()){
-                state =EATPACMAN;
-            }
-                int[] point = findDestination((int)(gameLoop.getPacman().getY()+8)/16, (int)(gameLoop.getPacman().getX()+8)/16);
-                
-                if(point == null) {
-                    System.out.println("null");
-                    System.out.println(gameLoop.getPacman().getX() );
-                    System.out.println(gameLoop.getPacman().getY());
+        int curI= (int)((y+8)/16+1e-3);
+        double m=(x+8)/16+1e-3;
+        int curJ = (int)((x+8)/16+1e-3);
+
+            if(inHouse == true){
+                if(System.currentTimeMillis() - gameLoop.startTime >timeInHouse){
+                    if(Math.abs(x-200)<1e-5&&Math.abs(y-168)<1e-5){
+                        state=MOVING;
+                        inHouse=false;
+                        return;
+                    }
+                    int[] p=findDestination(11, 13,mazeInHouse);
+                    if(p!=null){
+                      updateDirection(findDestination(11, 13,mazeInHouse),mazeInHouse);  
+                    }
+                   
+                    move(mazeInHouse);
+                }
+                else{
                     return;
                 }
-                
-                break;
-        
-            default:
-                break;
+            }
+
+            else{
+
+            
+                switch (state) {
+                    
+                    case MOVING:
+                        if(isFighten ==true){
+                                    state =FRIGHTENED;
+                                    curAnimation.stop();
+                                    curAnimation = frighten;
+                                    curAnimation.start();
+                                    return;
+                        
+                                }
+                        else if(checkCollisionWithPacman()){
+                            state =EATPACMAN;
+                            startEatPacman= System.currentTimeMillis();
+
+                            return;
+                        } 
+                        
+                        int point[]=getDestination(thisMaze);
+                        if(point!=null) {
+                            int p[] = findDestination(point[0], point[1], thisMaze);
+                            if(p!=null){
+                            updateDirection(p,thisMaze);
+                        }
+                        }
+                        move(thisMaze);
+                        
+                        break;
+
+                    case EATPACMAN:
+                        break;
+                    case EATEN:
+                        if(System.currentTimeMillis()- starteaten<1500){
+                            isDeath =true;
+                            curAnimation.stop();
+                            curAnimation= eaten;
+                            curAnimation.start();
+                        }
+                        else{
+                            
+                            if(Math.abs(x-200)<1e-5&&Math.abs(y- 168)<1e-5){
+                                isDeath=false;
+                                setV(1.6);
+                                state = MOVING;
+                                isEye = false;
+                                gameLoop.state = gameLoop.INGAME;
+                                isFighten =false;
+                                curAnimation.stop();
+                                curAnimation = moveRight;
+                                curAnimation.start();
+                                return;
+
+                            }
+                            else{
+                                setV(4);
+                                curAnimation.stop();
+                                curAnimation = eyeRight;
+                                curAnimation.start();
+                        
+                                updateDirection(findDestination(11, 13, thisMaze),thisMaze);
+                                move(thisMaze);
+                            }
+
+                        }
+                    break;
+                    case FRIGHTENED:
+                        
+                        if( checkCollisionWithPacman()&&isEye==false){
+                            state = EATEN;
+                            isEye=true;
+                            gameLoop.state = gameLoop.GHOSTDEATH;
+                            gameLoop.startGhostDeath = System.currentTimeMillis();
+                            curAnimation.stop();
+                            curAnimation = eaten;
+                            curAnimation.start();
+                            starteaten = System.currentTimeMillis();
+                            return;
+                        }
+
+                        point=getDestination(thisMaze);
+                        if(point!=null)
+                        updateDirection(findDestination(point[0], point[1], thisMaze),thisMaze);
+                        move(thisMaze);
+                        
+                        if(System.currentTimeMillis()-startFighten>8000){
+
+                            if (System.currentTimeMillis()-startChange==500){
+                                Image image;
+                                image = (curAnimation.getImage()==frImage) ? white_ghost : frImage;
+                                curAnimation.setImage(image);
+                                startChange=System.currentTimeMillis();
+                            }
+                            
+                        }
+                    
+                        if(System.currentTimeMillis()-startFighten>=10000){
+                            
+                            isFighten =false;
+                            state =MOVING;
+                            curAnimation.stop();
+                            curAnimation = moveRight;
+                            curAnimation.start();
+                            
+                        }
+                        
+                        break;
+                    
+                }
+            }
         }
+        
+            
     }
     
     public void render(){
@@ -95,35 +229,175 @@ public class Ghost extends Characters {
         }
        return false;
     }
+
+    
+    
+    public void updateDirection(int[] next,char[][] thisMaze){
+        int curI= (int)((y+8)/16+1e-3);
+        double m=(x+8)/16+1e-3;
+        int curJ = (int)((x+8)/16+1e-3);
+
+        
+        if(next[0]>curI){
+            nextDirection=DOWN;
+            if(!checkCollisionWitMaze(thisMaze, x, y+v)){
+                direction = DOWN;
+            }
+            else{
+                if(x-next[1]*16+8>1e-4){
+                    direction = LEFT;
+                }
+                if(next[1]*16 - x - 8>1e-4){
+                    direction = RIGHT;
+                }
+            }
+            
+        }
+        if(next[0]<curI){
+            nextDirection= UP;
+            if(!checkCollisionWitMaze(thisMaze, x, y-v)){
+                direction = UP; 
+            }
+            else{
+                if(x-next[1]*16+8>1e-4){
+                    direction = LEFT;
+                }
+                if(next[1]*16 - x - 8>1e-4){
+                    direction = RIGHT;
+                }
+            }
+
+        }
+        if(next[1]>curJ){
+            nextDirection=RIGHT;
+            if(!checkCollisionWitMaze(thisMaze, x+v, y)){
+                direction = RIGHT;
+            }
+            else{
+                if(y-next[0]*16+8>1e-4){
+                    direction = UP;
+                }
+                if(next[0]*16 - y - 8>1e-4){
+                    direction = DOWN;
+                }
+            }
+            
+        }
+        if(next[1]<curJ){
+            nextDirection=LEFT;
+            if(!checkCollisionWitMaze(thisMaze, x-v, y)){
+                direction = LEFT;
+            }
+            else{
+                if(y-next[0]*16+8>1e-4){
+                    direction = UP;
+                }
+                if(next[0]*16 - y - 8>1e-4){
+                    direction = DOWN;
+                }
+            }
+            
+
+        }
+        if(next[0] == curI&&next[1]==curJ){
+            switch (direction) {
+                case UP:
+                    if(Math.abs(y-next[0]*16+8)<1e-4) {
+                        if(x-next[1]*16+8>1e-4){
+                            nextDirection = LEFT;
+                        }
+                        if(next[1]*16-8-x>1e-4){
+                            nextDirection = RIGHT;
+                        }
+                    }
+                    else{
+                        return;
+                    }
+                    break;
+                case DOWN:
+                if(Math.abs(y-next[0]*16+8)<1e-4) {
+                    if(x-next[1]*16+8>1e-4){
+                        nextDirection = LEFT;
+                    }
+                    if(next[1]*16-8-x>1e-4){
+                        nextDirection = RIGHT;
+                    }
+                }
+                else{
+                    return;
+                }
+                    break;
+                case LEFT:
+                if(Math.abs(x-next[1]*16+8)<1e-4) {
+                    if(y-next[0]*16+8>1e-4){
+                        nextDirection = UP;
+                    }
+                    if(next[0]*16-8-y>1e-4){
+                        nextDirection = DOWN;
+                    }
+                }
+                else{
+                    return;
+                }
+                    break;
+                case RIGHT:
+                if(Math.abs(x-next[1]*16+8)<1e-4) {
+                    if(y-next[0]*16+8>1e-4){
+                        nextDirection = UP;
+                    }
+                    if(next[0]*16-8-y>1e-4){
+                        nextDirection = DOWN;
+                    }
+                }
+                else{
+                    return;
+                }
+                    break;
+                    
+            }
+        }
+    }
+    public int[] findRandomDes(){
+        int[] des;
+        int curI = (int)((y+8)/16+1e-5);
+            int curJ = (int)((x+8)/16+1e-5);
+            des = scatterPoint;
+            if (curI == scatterPoint[0] && curJ == scatterPoint[1]) {
+                Random random = new Random();
+                int randomIndex = random.nextInt(scatterPoints.length);
+                scatterPoint = scatterPoints[randomIndex];
+                des = scatterPoint;
+            }
+        return des;
+    }
     /**
      * Su dung thuat toan A* tim duong di ngan nhat
      * @param x hang muc tieu
      * @param y cot muc tieu
      * @return tra ve o tiep theo se di
      */
-    public int[] findDestination(int desI,int desJ){
-        int firstI = (int)(y+8)/16;
-        int firstJ = (int) (x+8)/16;
+    public int[] findDestination(int desI,int desJ,char[][] maze){
+        int firstI = (int) ((y+8)/16+1e-4);
+        int firstJ = (int) ((x+8)/16+1e-4);
        PriorityQueue<Node> openList = new PriorityQueue<>(Comparator.comparingDouble(node -> node.f));
        HashMap<String, Node> closeList = new HashMap<>();
         Node start = new Node(firstI,firstJ,0,getHeuristic(firstI,firstJ,desI,desJ),null);
         openList.add(start);
+
         while(!openList.isEmpty()){
             
             Node current = openList.poll(); // lay va loai bo phan tu o dau hang doi
             if(closeList.containsKey(current.toString())) {
-                if(closeList.get(current.toString()).f>current.f){
-                    closeList.remove(current.toString());
-                    closeList.put(current.toString(),current);
-                }
-                else{
                     continue;
-                }
-                
+    
             }
             closeList.put(current.toString(),current);
 
             if(current.i == desI && current.j == desJ){
+                if(current.parent==null) {
+                    return new int[]{current.i,current.j};
+                }
+                
                 while(current.parent.parent!=null){
                     current = current.parent;
                 }
@@ -139,15 +413,13 @@ public class Ghost extends Characters {
                     int curJ = current.j;
                     
                     if(curI+i<0||curJ+j<0||curI+i>=31||curJ+j>=28) continue;
-                    if(gameLoop.getMaze().maze[level][curI+i][curJ+j]=='X') continue;
+                    if(maze[curI+i][curJ+j]=='X') continue;
                     int nextI = curI+i;
                     int nextJ = curJ+j;
                     double nextG = current.g+1;
                     double nextH = getHeuristic(nextI,nextJ,desI,desJ);
                     Node child = new Node(nextI,nextJ,nextG,nextH,current);
-                    if(!closeList.containsKey(child.toString()))
                     openList.add(child);
-
 
                 }
 

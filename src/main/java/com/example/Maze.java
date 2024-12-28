@@ -15,11 +15,9 @@ public class Maze {
     final static private double BLOOK_SIZE = 16;
 
 
-    //GameLoop gameLoop;
-    GraphicsContext g2;
     //int level = 
     static public char[][][] maze = new char[LEVEL][HANG][COT];
-    public static void initMaze(int level){
+    public static void initMaze(int level,GameLoop gameLoop){
         //this.gameLoop = gameLoop;
         switch (level) {
             case 1:
@@ -61,7 +59,7 @@ public class Maze {
                     switch (maze[level][i][j]) {
                         case 'o':    
                             //Image dot = new Image(getClass().getResource("/com/example/pictures/pellet/pacdot.png").toExternalForm());  
-                            PacDot pacDot = new PacDot(j*BLOOK_SIZE+BLOOK_SIZE/2 - 2,i*BLOOK_SIZE+BLOOK_SIZE/2 - 2);  
+                            PacDot pacDot = new PacDot(j*BLOOK_SIZE+BLOOK_SIZE/2 - 2,i*BLOOK_SIZE+BLOOK_SIZE/2 - 2,gameLoop);  
                             AllPellet.pellets.add(pacDot); 
                             // pacDot.g = gameLoop.g;
                             // pacDot.render();
@@ -69,7 +67,7 @@ public class Maze {
                             
                             break;
                         case 'O':    
-                            PowerPellet powerPellet = new PowerPellet(j*BLOOK_SIZE+BLOOK_SIZE/2 - 8,i*BLOOK_SIZE+BLOOK_SIZE/2 - 8);
+                            PowerPellet powerPellet = new PowerPellet(j*BLOOK_SIZE+BLOOK_SIZE/2 - 8,i*BLOOK_SIZE+BLOOK_SIZE/2 - 8,gameLoop);
                             AllPellet.pellets.add(powerPellet);
                             // powerPellet.g = gameLoop.g;
                             // powerPellet.render();

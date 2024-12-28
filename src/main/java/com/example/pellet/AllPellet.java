@@ -6,7 +6,7 @@ import com.example.character.Pacman;
 
 public class AllPellet {
     public static ArrayList<Pellet> pellets = new ArrayList<Pellet>();
-    
+
     public static void update(){
         for (Pellet pellet : pellets) {
             if(pellet.isEaten){
