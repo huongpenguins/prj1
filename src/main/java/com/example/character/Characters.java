@@ -52,12 +52,15 @@ public class Characters {
 
 
      char[][] thisMaze;
-
+     
+    public void getCurAnimation() {
+    }
      public void move(char[][] thisMaze){
-        double n=(y+8)/16+1e-3;
-        int curI= (int)((y+8)/16+1e-3);
-        double m=(x+8)/16+1e-3;
-        int curJ = (int)((x+8)/16+1e-3);
+        double n=(y+16)/16+1e-3;
+        int curI= (int)((y+16)/16+1e-3);
+        double m=(x+16)/16+1e-3;
+        int curJ = (int)((x+16)/16+1e-3);
+        
 
           if(nextDirection!=direction){
              if (nextDirection == UP && !checkCollisionWitMaze(thisMaze, x, y - v)) {
@@ -69,6 +72,8 @@ public class Characters {
              } else if (nextDirection == RIGHT && !checkCollisionWitMaze(thisMaze, x + v, y)) {
                  direction = RIGHT;
              }
+             
+        
          }
 
          if(direction == UP){
@@ -77,17 +82,28 @@ public class Characters {
                      y=16*30-8;
                  }
                  else{
-                    
+                     n=(y+16-v)/16+1e-3;
+                    curI= (int)((y+16-v)/16+1e-3);
+                     m=(x+16)/16+1e-3;
+                    curJ = (int)((x+16)/16+1e-3);
+        
+                    if(Math.abs(y-v+16-curI*16)<=v/2-1e-4){
+                        y = curI*16-16;
+                        
+                    }
+                    else 
                     y-=v;
+                    
                  }
                  curAnimation.stop();
-                 curAnimation = moveUp;
+                 getCurAnimation();
                  curAnimation.start();
              }
              if(checkCollisionWitMaze(thisMaze, x, y-v)){
                  if(!checkCollisionWitMaze(thisMaze, x, y)){
                      y=((int)((y-v+8)/16+1+1e-4))*16-8; 
                  }
+                 
              }
          }
          if(direction == DOWN){
@@ -96,10 +112,18 @@ public class Characters {
                      y=0-8;
                  }
                  else{
+                    n=(y+16+v)/16+1e-3;
+                    curI= (int)((y+16+v)/16+1e-3);
+                     m=(x+16)/16+1e-3;
+                    curJ = (int)((x+16)/16+1e-3);
+                    if(Math.abs(y+v+16-curI*16)<=v/2-1e-4){
+                        y = curI*16-16;
+                    }
+                    else 
                      y+=v;
                  }
                  curAnimation.stop();
-                 curAnimation = moveDown;
+                 getCurAnimation();
                  curAnimation.start();
              }
              if(checkCollisionWitMaze(thisMaze, x, y+v)){
@@ -114,11 +138,19 @@ public class Characters {
                      x=27*16-8;
                  }
                  else{
-                    
+                    n=(y+16)/16+1e-3;
+                    curI= (int)((y+16)/16+1e-3);
+                     m=(x+16-v)/16+1e-3;
+                    curJ = (int)((x+16-v)/16+1e-3);
+        
+                    if(Math.abs(x-v+16-curJ*16)<=v/2-1e-4){
+                        x = curJ*16-16;
+                    }
+                    else
                        x-=v; 
                  }
                  curAnimation.stop();
-                 curAnimation = moveLeft;
+                  getCurAnimation();
                  curAnimation.start();
              }
              if(checkCollisionWitMaze(thisMaze, x-v, y)){
@@ -133,11 +165,20 @@ public class Characters {
                      x=0-8;
                  }
                  else{
+                    n=(y+16)/16+1e-3;
+                    curI= (int)((y+16)/16+1e-3);
+                     m=(x+16+v)/16+1e-3;
+                    curJ = (int)((x+16+v)/16+1e-3);
+        
+                    if(Math.abs(x+v+16-curJ*16)<=v/2-1e-4){
+                        x = curJ*16-16;
+                    }
+                    else
                         x+=v;
                 
                  }
                  curAnimation.stop();
-                 curAnimation = moveRight;
+                 getCurAnimation();
                  curAnimation.start();
              }
              if(checkCollisionWitMaze(thisMaze, x+v, y)){

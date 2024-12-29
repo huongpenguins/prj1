@@ -54,13 +54,21 @@ public class Maze {
                 {'X','o','o','o','o','o','o','o','o','o','o','o','o','o','o','o','o','o','o','o','o','o','o','o','o','o','o','X'},
                 {'X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X','X'},
                             };
+                for(int i = 0; i < HANG; i++) {
+                    gameLoop.g.strokeLine(0, i*16, 28*16, i*16);
+                }      
+                for(int j = 0 ; j < COT ; j++){
+                    gameLoop.g.strokeLine(16*j, 0, 16*j, 31*16);
+                }
                 for(int i = 0; i < HANG; i++)
                 for(int j = 0 ; j < COT ; j++){
+                    
                     switch (maze[level][i][j]) {
                         case 'o':    
                             //Image dot = new Image(getClass().getResource("/com/example/pictures/pellet/pacdot.png").toExternalForm());  
                             PacDot pacDot = new PacDot(j*BLOOK_SIZE+BLOOK_SIZE/2 - 2,i*BLOOK_SIZE+BLOOK_SIZE/2 - 2,gameLoop);  
                             AllPellet.pellets.add(pacDot); 
+
                             // pacDot.g = gameLoop.g;
                             // pacDot.render();
                             //g2.drawImage(pacDot,j*BLOOK_SIZE+BLOOK_SIZE/2 - 2,i*BLOOK_SIZE+BLOOK_SIZE/2 - 2,4,4);

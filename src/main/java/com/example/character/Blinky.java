@@ -32,10 +32,13 @@ public class Blinky extends Ghost {
     }
     @Override
     public void update(){
-        super.update();
-        if(gameLoop.point.get()>1000){
-            v=3.2;
+        if(gameLoop.point.get()>1000&&isFighten==false){
+            v=4;
         }
+        else v=DEFAULTV;
+        super.update();
+        
+        
     }
     @Override
     public void render(){

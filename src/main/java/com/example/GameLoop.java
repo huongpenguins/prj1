@@ -14,6 +14,7 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 
 public class GameLoop {
     
@@ -48,7 +49,7 @@ public class GameLoop {
     public final int GAMEOVER=2;
     public final int INGAME=3;
     public final int PACMANDEATH=5;
-    public final int GHOSTDEATH = 6;
+    public final int GHOSTDEATH =6;
 
     
     Image mazeImage = new Image(getClass().getResource("/com/example/pictures/maze/maze_blue.png").toExternalForm());
@@ -70,7 +71,6 @@ public class GameLoop {
     }
     static public GameLoop getInstance (GraphicsContext g){
         if(instance==null) instance = new GameLoop(g);
-        //else instance.g = g;
         return instance;
         
         
@@ -118,8 +118,7 @@ public class GameLoop {
             case INGAME:
                 AllPellet.update();
                 pacman.update();
-                blinky.update();
-                //AllGhost.update();
+                AllGhost.update();
                 break;
  
             case WIN:
@@ -135,10 +134,6 @@ public class GameLoop {
                 }
                 break;
             case GHOSTDEATH:
-                if(System.currentTimeMillis()- startGhostDeath >2000){
-                    state = INGAME;
-                    return;
-                }
                 AllPellet.update();
                 for(Ghost ghost : AllGhost.ghosts){
                     if(ghost.isDeath == true) {
@@ -158,13 +153,13 @@ public class GameLoop {
 
 
                 }
-                else{
 
-                }
                 break;
             case PACMANDEATH:
                 if(System.currentTimeMillis()-startPacmanDeath > 3000){
-                    if(lives.get()>=0) state = START;
+                    if(lives.get()>=0) {state = START;
+                        startTime = System.currentTimeMillis();
+                    }
                     else state = GAMEOVER;
                     return;
                 }
@@ -178,6 +173,14 @@ public class GameLoop {
         
     }
     public void render(GraphicsContext g){
+        // for(int i = 0; i < 31; i++) {
+        //     g.setStroke(Color.WHITE);
+        //     g.strokeLine(0, i*16, 28*16, i*16);
+        // }      
+        // for(int j = 0 ; j < 28 ; j++){
+        //     g.setStroke(Color.WHITE);
+        //     g.strokeLine(16*j, 0, 16*j, 31*16);
+        // }
         pellets.render();
 
         switch (state) {
@@ -198,7 +201,7 @@ public class GameLoop {
                 
                 break;
             case GAMEOVER:
-                 g.drawImage(gameOverImage,13*16,19*16);
+                 g.drawImage(gameOverImage,13*14,19*16);
                 break;
             case PACMANDEATH:
                 pacman.render();

@@ -22,7 +22,7 @@ public abstract class Ghost extends Characters {
     long startChange;
     public boolean isDeath=false; 
     public boolean isEye=false;
-
+    public static final double  DEFAULTV=3.2;
     Animation die;
     Animation eatPacman;
     Animation frighten;
@@ -55,7 +55,7 @@ public abstract class Ghost extends Characters {
     
 
     public Ghost(double x, double y,GameLoop gameLoop) {
-        super(x,y,32,32,1.6,gameLoop);
+        super(x,y,32,32, DEFAULTV ,gameLoop);
         AllGhost.ghosts.add(this);
         frighten = new Animation(frImage,gameLoop.getG(),this,1000000000/12);
         eyeRight = new Animation(eyeRightImage, gameLoop.getG(), this, 1000000000/12);
@@ -75,6 +75,7 @@ public abstract class Ghost extends Characters {
     }
 
     abstract public int[] getDestination(char maze[][]);
+
     @Override
     public void update(){
         if(gameLoop.state == gameLoop.INGAME||gameLoop.state ==gameLoop.GHOSTDEATH){
@@ -110,11 +111,7 @@ public abstract class Ghost extends Characters {
                     case MOVING:
                         if(isFighten ==true){
                                     state =FRIGHTENED;
-                                    curAnimation.stop();
-                                    curAnimation = frighten;
-                                    curAnimation.start();
                                     return;
-                        
                                 }
                         else if(checkCollisionWithPacman()){
                             state =EATPACMAN;
@@ -130,6 +127,7 @@ public abstract class Ghost extends Characters {
                             updateDirection(p,thisMaze);
                         }
                         }
+
                         move(thisMaze);
                         
                         break;
@@ -143,29 +141,31 @@ public abstract class Ghost extends Characters {
                             curAnimation= eaten;
                             curAnimation.start();
                         }
+                       
                         else{
-                            
-                            if(Math.abs(x-200)<1e-5&&Math.abs(y- 168)<1e-5){
+                            isEye=true;
+                            if(Math.abs(x-(16*13-8))<1e-5&&Math.abs(y- (16*14-8))<1e-5){
                                 isDeath=false;
-                                setV(1.6);
+                                inHouse=true;
+                                setV(DEFAULTV);
                                 state = MOVING;
                                 isEye = false;
+                                isDeath=false;
                                 gameLoop.state = gameLoop.INGAME;
                                 isFighten =false;
                                 curAnimation.stop();
-                                curAnimation = moveRight;
+                                curAnimation = moveUp;
                                 curAnimation.start();
                                 return;
 
                             }
                             else{
-                                setV(4);
+                                setV(5);
                                 curAnimation.stop();
                                 curAnimation = eyeRight;
                                 curAnimation.start();
-                        
-                                updateDirection(findDestination(11, 13, thisMaze),thisMaze);
-                                move(thisMaze);
+                                updateDirection(findDestination(14, 13, mazeInHouse),mazeInHouse);
+                                move(mazeInHouse);
                             }
 
                         }
@@ -174,7 +174,7 @@ public abstract class Ghost extends Characters {
                         
                         if( checkCollisionWithPacman()&&isEye==false){
                             state = EATEN;
-                            isEye=true;
+                            isDeath=true;
                             gameLoop.state = gameLoop.GHOSTDEATH;
                             gameLoop.startGhostDeath = System.currentTimeMillis();
                             curAnimation.stop();
@@ -189,9 +189,9 @@ public abstract class Ghost extends Characters {
                         updateDirection(findDestination(point[0], point[1], thisMaze),thisMaze);
                         move(thisMaze);
                         
-                        if(System.currentTimeMillis()-startFighten>8000){
+                        if(System.currentTimeMillis()-startFighten>6000){
 
-                            if (System.currentTimeMillis()-startChange==500){
+                            if (System.currentTimeMillis()-startChange>=300){
                                 Image image;
                                 image = (curAnimation.getImage()==frImage) ? white_ghost : frImage;
                                 curAnimation.setImage(image);
@@ -203,6 +203,7 @@ public abstract class Ghost extends Characters {
                         if(System.currentTimeMillis()-startFighten>=10000){
                             
                             isFighten =false;
+                            frighten.setImage(frImage);
                             state =MOVING;
                             curAnimation.stop();
                             curAnimation = moveRight;
@@ -221,8 +222,46 @@ public abstract class Ghost extends Characters {
     
     public void render(){
         curAnimation.draw();
+        //gameLoop.getG().fillRect(x+8,y+8,16,16);
 
     }  
+    public void getCurAnimation(){
+        if(isEye){
+            switch (direction) {
+                case UP:
+                    curAnimation= eyeUp;
+                    break;
+                case DOWN:
+                    curAnimation = eyeDown;
+                    break;
+                case LEFT:
+                    curAnimation = eyeLeft;
+                    break;
+                case RIGHT:
+                    curAnimation = eyeRight;
+                    break;
+            }
+        }
+        else if(isFighten==true){
+            
+        }
+        else {
+            switch (direction) {
+                case UP:
+                    curAnimation= moveUp;
+                    break;
+                case DOWN:
+                    curAnimation = moveDown;
+                    break;
+                case LEFT:
+                    curAnimation = moveLeft;
+                    break;
+                case RIGHT:
+                    curAnimation = moveRight;
+                    break;
+            }
+        }
+    }
      public boolean checkCollisionWithPacman() {
         if (this.getBound().getBoundsInParent().intersects(gameLoop.getPacman().getBound().getBoundsInParent())) {
             return true;
@@ -233,9 +272,9 @@ public abstract class Ghost extends Characters {
     
     
     public void updateDirection(int[] next,char[][] thisMaze){
-        int curI= (int)((y+8)/16+1e-3);
-        double m=(x+8)/16+1e-3;
-        int curJ = (int)((x+8)/16+1e-3);
+        int curI= (int)((y+16)/16+1e-3);
+        double m=(x+16)/16+1e-3;
+        int curJ = (int)((x+16)/16+1e-3);  // toa do tam
 
         
         if(next[0]>curI){
@@ -244,12 +283,18 @@ public abstract class Ghost extends Characters {
                 direction = DOWN;
             }
             else{
-                if(x-next[1]*16+8>1e-4){
-                    direction = LEFT;
+                if(Math.abs(x-next[1]*16+8)<=v/2) {
+                    x=next[1]*16-8;
+                    direction=DOWN;
                 }
-                if(next[1]*16 - x - 8>1e-4){
-                    direction = RIGHT;
-                }
+                // if(x-next[1]*16+8>1e-4){
+                //     direction = LEFT;
+                //     return;
+                // }
+                // if(next[1]*16 - x - 8>1e-4){
+                //     direction = RIGHT;
+                //     return;
+                // }
             }
             
         }
@@ -259,12 +304,19 @@ public abstract class Ghost extends Characters {
                 direction = UP; 
             }
             else{
-                if(x-next[1]*16+8>1e-4){
-                    direction = LEFT;
+                if(Math.abs(x-next[1]*16+8)<=v/2) {
+                    x=next[1]*16-8;
+                    direction=UP;
                 }
-                if(next[1]*16 - x - 8>1e-4){
-                    direction = RIGHT;
-                }
+                // if(x-next[1]*16+8>1e-4){
+                //     direction = LEFT;
+                //     return;
+
+                // }
+                // if(next[1]*16 - x - 8>1e-4){
+                //     direction = RIGHT;
+                //     return;
+                // }
             }
 
         }
@@ -274,12 +326,18 @@ public abstract class Ghost extends Characters {
                 direction = RIGHT;
             }
             else{
-                if(y-next[0]*16+8>1e-4){
-                    direction = UP;
+                if(Math.abs(y-next[0]*16+8)<=v/2) {
+                    y=next[0]*16-8;
+                    direction=RIGHT;
                 }
-                if(next[0]*16 - y - 8>1e-4){
-                    direction = DOWN;
-                }
+                // if(y-next[0]*16+8>1e-4){
+                //     direction = UP;
+                //     return;
+                // }
+                // if(next[0]*16 - y - 8>1e-4){
+                //     direction = DOWN;
+                //     return;
+                // }
             }
             
         }
@@ -289,12 +347,16 @@ public abstract class Ghost extends Characters {
                 direction = LEFT;
             }
             else{
-                if(y-next[0]*16+8>1e-4){
-                    direction = UP;
+                if(Math.abs(y-next[0]*16+8)<=v/2) {
+                    y=next[0]*16-8;
+                    direction=LEFT;
                 }
-                if(next[0]*16 - y - 8>1e-4){
-                    direction = DOWN;
-                }
+                // if(y-next[0]*16+8>1e-4){
+                //     direction = UP;
+                // }
+                // if(next[0]*16 - y - 8>1e-4){
+                //     direction = DOWN;
+                // }
             }
             
 
@@ -305,12 +367,18 @@ public abstract class Ghost extends Characters {
                     if(Math.abs(y-next[0]*16+8)<1e-4) {
                         if(x-next[1]*16+8>1e-4){
                             nextDirection = LEFT;
+                            return;
                         }
                         if(next[1]*16-8-x>1e-4){
                             nextDirection = RIGHT;
+                            return;
                         }
                     }
                     else{
+                        if(Math.abs(y-next[0]*16+8)<=v/2) {
+                            y=next[0]*16-8;
+                            
+                        }
                         return;
                     }
                     break;
@@ -318,12 +386,18 @@ public abstract class Ghost extends Characters {
                 if(Math.abs(y-next[0]*16+8)<1e-4) {
                     if(x-next[1]*16+8>1e-4){
                         nextDirection = LEFT;
+                        return;
                     }
                     if(next[1]*16-8-x>1e-4){
                         nextDirection = RIGHT;
+                        return;
                     }
                 }
                 else{
+                    if(Math.abs(y-next[0]*16+8)<=v/2) {
+                        y=next[0]*16-8;
+                        
+                    }
                     return;
                 }
                     break;
@@ -331,12 +405,17 @@ public abstract class Ghost extends Characters {
                 if(Math.abs(x-next[1]*16+8)<1e-4) {
                     if(y-next[0]*16+8>1e-4){
                         nextDirection = UP;
+                        return;
                     }
                     if(next[0]*16-8-y>1e-4){
                         nextDirection = DOWN;
+                        return;
                     }
                 }
                 else{
+                    if(Math.abs(x-next[1]*16+8)<=v/2) {
+                        x=next[1]*16-8;
+                    }
                     return;
                 }
                     break;
@@ -344,12 +423,17 @@ public abstract class Ghost extends Characters {
                 if(Math.abs(x-next[1]*16+8)<1e-4) {
                     if(y-next[0]*16+8>1e-4){
                         nextDirection = UP;
+                        return;
                     }
                     if(next[0]*16-8-y>1e-4){
                         nextDirection = DOWN;
+                        return;
                     }
                 }
                 else{
+                    if(Math.abs(x-next[1]*16+8)<=v/2) {
+                        x=next[1]*16-8;
+                    }
                     return;
                 }
                     break;

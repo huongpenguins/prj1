@@ -22,7 +22,10 @@ public class AllGhost {
         for (Ghost ghost : ghosts) {
             ghost.isFighten=a;
             ghost.startFighten = System.currentTimeMillis();
-            ghost.startChange = ghost.startFighten +8000;
+            ghost.startChange = ghost.startFighten +6000;
+            ghost.curAnimation.stop();
+            ghost.curAnimation = ghost.frighten;
+            ghost.curAnimation.start();
 
         }
     }

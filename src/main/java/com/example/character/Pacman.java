@@ -36,7 +36,7 @@ public class Pacman extends Characters {
 
 
     public Pacman(double x, double y,GameLoop gameLoop) {
-        super(x, y, 32.0, 32.0, 3.2, gameLoop);
+        super(x, y, 32.0, 32.0, 4, gameLoop);
         //this.g = g;
         state = MOVING;
         moveUp = new Animation(up, gameLoop.getG(), this,1000000000/12);
@@ -53,7 +53,7 @@ public class Pacman extends Characters {
     }
     @Override
     public void update() {
-        if(gameLoop.state == gameLoop.INGAME||gameLoop.state==gameLoop.PACMANDEATH){
+        
             switch (state) {
                 case MOVING:
                     Pellet pellet=checkCollionWithPellet();
@@ -81,6 +81,7 @@ public class Pacman extends Characters {
                         }
                         else{
                             state = DIE; 
+                            gameLoop.state = gameLoop.PACMANDEATH;
                             curAnimation.stop();
                             curAnimation = die;
                             curAnimation.start();
@@ -112,7 +113,7 @@ public class Pacman extends Characters {
                 
                             }
                             else{
-                                    gameLoop.state =gameLoop.PACMANDEATH;
+                                    curAnimation.stop();
                             }
                     }
  
@@ -121,14 +122,29 @@ public class Pacman extends Characters {
         }
         
 
-    }
+    
 
     @Override
     public void render() {
         curAnimation.draw();
     }   
    
-
+    public void getCurAnimation(){
+        switch (direction) {
+            case UP:
+                curAnimation= moveUp;
+                break;
+            case DOWN:
+                curAnimation = moveDown;
+                break;
+            case LEFT:
+                curAnimation = moveLeft;
+                break;
+            case RIGHT:
+                curAnimation = moveRight;
+                break;
+        }
+    }
     public void addKeyListener(KeyCode k){
         
         if(k == KeyCode.UP){
